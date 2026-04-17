@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast, Toaster } from "sonner";
 
@@ -254,6 +254,14 @@ export default function App() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [aiProcessing, setAiProcessing] = useState(false);
   const [aiResult, setAiResult] = useState<any>(null);
+  const [capturedAddress, setCapturedAddress] = useState<string>("");
+  const aiResultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if ((aiProcessing || aiResult) && aiResultRef.current) {
+      aiResultRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [aiProcessing, aiResult]);
 
   // Notification state
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -401,8 +409,9 @@ export default function App() {
     }
   };
 
-  const handleImageUpload = async (file: File, location: { lat: number; lng: number } | null) => {
+  const handleImageUpload = async (file: File, location: { lat: number; lng: number } | null, address: string | null) => {
     setUploadedImage(file);
+    if (address) setCapturedAddress(address);
     setAiProcessing(true);
 
     // Simulate AI processing
@@ -436,6 +445,7 @@ export default function App() {
 
     setUploadedImage(null);
     setAiResult(null);
+    setCapturedAddress("");
     setCurrentView('my-listings');
   };
 
@@ -601,12 +611,15 @@ export default function App() {
               />
 
               {(aiProcessing || aiResult) && (
-                <AIProcessingStatus result={aiResult} isProcessing={aiProcessing} />
+                <div ref={aiResultRef}>
+                  <AIProcessingStatus result={aiResult} isProcessing={aiProcessing} />
+                </div>
               )}
 
               {aiResult && !aiProcessing && (
                 <ListingForm
                   suggestedPrice={aiResult.suggested_price}
+                  initialAddress={capturedAddress}
                   onSubmit={handleCreateListing}
                 />
               )}

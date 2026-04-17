@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Upload, Camera, MapPin, X, Loader2, StopCircle } from "lucide-react";
 
 interface ImageUploaderProps {
-  readonly onImageUpload: (file: File, location: { lat: number; lng: number } | null) => void;
+  readonly onImageUpload: (file: File, location: { lat: number; lng: number } | null, address: string | null) => void;
   readonly isProcessing?: boolean;
 }
 
@@ -18,6 +18,25 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
   // Canvas lives outside AnimatePresence so it's always mounted
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  const reverseGeocode = async (lat: number, lng: number): Promise<string | null> => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`,
+        { headers: { "Accept-Language": "en" } }
+      );
+      const data = await res.json();
+      const a = data.address ?? {};
+      const parts = [
+        a.village || a.hamlet || a.suburb || a.neighbourhood,
+        a.city || a.town || a.municipality,
+        a.state || a.province,
+      ].filter(Boolean);
+      return parts.length > 0 ? parts.join(", ") : (data.display_name ?? null);
+    } catch {
+      return null;
+    }
+  };
 
   const extractGPSData = (): Promise<{ lat: number; lng: number } | null> => {
     return new Promise((resolve) => {
@@ -117,8 +136,9 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
     reader.readAsDataURL(file);
 
     const gpsData = await extractGPSData();
+    const address = gpsData ? await reverseGeocode(gpsData.lat, gpsData.lng) : null;
     setLocation(gpsData);
-    onImageUpload(file, gpsData);
+    onImageUpload(file, gpsData, address);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -225,7 +245,7 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
             exit={{ opacity: 0, scale: 0.95 }}
             className="relative rounded-2xl overflow-hidden bg-black border border-border"
           >
-            <div className="relative w-full bg-black" style={{ height: "500px", minHeight: "400px" }}>
+            <div className="relative w-full bg-black" style={{ height: "min(500px, 60vh)", minHeight: "300px" }}>
               <video
                 ref={(el) => {
                   videoRef.current = el;

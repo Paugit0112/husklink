@@ -15,16 +15,17 @@ interface ListingFormData {
 
 interface ListingFormProps {
   suggestedPrice?: number;
+  initialAddress?: string;
   onSubmit: (data: ListingFormData) => void;
 }
 
-export function ListingForm({ suggestedPrice = 0, onSubmit }: ListingFormProps) {
+export function ListingForm({ suggestedPrice = 0, initialAddress = "", onSubmit }: ListingFormProps) {
   const [formData, setFormData] = useState<ListingFormData>({
     title: "",
     description: "",
     askingPrice: suggestedPrice,
     logisticsType: 'farm_pickup',
-    address: "",
+    address: initialAddress,
     expiresInDays: 7
   });
 
