@@ -1,12 +1,11 @@
 /**
  * Supabase Hooks
  *
- * Custom React hooks for Supabase integration.
- * These will be functional once you connect Supabase in Make settings.
+ * Custom React hooks for Supabase integration with real database.
  */
 
 import { useState, useEffect } from 'react';
-// import { supabase } from '../utils/supabase/client';
+import { supabase } from '../utils/supabase/client';
 
 /**
  * Hook to fetch and subscribe to listings
@@ -20,33 +19,32 @@ export function useListings(filters?: { status?: string; logisticsType?: string 
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // TODO: Implement when Supabase is connected
-    // const fetchListings = async () => {
-    //   try {
-    //     let query = supabase.from('listings').select('*');
-    //
-    //     if (filters?.status) {
-    //       query = query.eq('status', filters.status);
-    //     }
-    //
-    //     if (filters?.logisticsType) {
-    //       query = query.eq('logistics_type', filters.logisticsType);
-    //     }
-    //
-    //     const { data, error } = await query;
-    //
-    //     if (error) throw error;
-    //     setListings(data || []);
-    //   } catch (err) {
-    //     setError(err as Error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    //
-    // fetchListings();
+    const fetchListings = async () => {
+      try {
+        let query = supabase
+          .from('listings')
+          .select('*, users!producer_id(full_name, farm_name, avatar_url)');
 
-    setLoading(false);
+        if (filters?.status) {
+          query = query.eq('status', filters.status);
+        }
+
+        if (filters?.logisticsType) {
+          query = query.eq('logistics_type', filters.logisticsType);
+        }
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+        setListings(data || []);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
   }, [filters]);
 
   return { listings, loading, error };
@@ -64,28 +62,27 @@ export function useRealtimeBids(listingId: string) {
   useEffect(() => {
     if (!listingId) return;
 
-    // TODO: Implement when Supabase is connected
-    // const channel = supabase
-    //   .channel(`bids:listing_id=eq.${listingId}`)
-    //   .on('postgres_changes', {
-    //     event: '*',
-    //     schema: 'public',
-    //     table: 'bids',
-    //     filter: `listing_id=eq.${listingId}`
-    //   }, (payload) => {
-    //     if (payload.eventType === 'INSERT') {
-    //       setBids(prev => [payload.new, ...prev]);
-    //     } else if (payload.eventType === 'UPDATE') {
-    //       setBids(prev => prev.map(bid =>
-    //         bid.id === payload.new.id ? payload.new : bid
-    //       ));
-    //     }
-    //   })
-    //   .subscribe();
-    //
-    // return () => {
-    //   supabase.removeChannel(channel);
-    // };
+    const channel = supabase
+      .channel(`bids:listing_id=eq.${listingId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'bids',
+        filter: `listing_id=eq.${listingId}`
+      }, (payload: any) => {
+        if (payload.eventType === 'INSERT') {
+          setBids(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setBids(prev => prev.map(bid =>
+            bid.id === payload.new.id ? payload.new : bid
+          ));
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [listingId]);
 
   return bids;
@@ -145,26 +142,22 @@ export function useImageUpload() {
 
     try {
       // TODO: Implement when Supabase is connected
-      // const fileExt = file.name.split('.').pop();
-      // const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      // const filePath = `${fileName}`;
-      //
-      // const { error: uploadError } = await supabase.storage
-      //   .from(bucket)
-      //   .upload(filePath, file);
-      //
-      // if (uploadError) throw uploadError;
-      //
-      // const { data: { publicUrl } } = supabase.storage
-      //   .from(bucket)
-      //   .getPublicUrl(filePath);
-      //
-      // setUrl(publicUrl);
-      // return publicUrl;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-      // Mock implementation
-      return URL.createObjectURL(file);
-    } catch (err) {
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+
+      setUrl(publicUrl);
+      return publicUrl
       setError(err as Error);
       throw err;
     } finally {
