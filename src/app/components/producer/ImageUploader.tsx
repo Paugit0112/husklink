@@ -14,20 +14,18 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const extractGPSData = (file: File): Promise<{ lat: number; lng: number } | null> => {
     return new Promise((resolve) => {
-      // In production, use exif-js or similar library
-      // For MVP, simulate GPS extraction
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             resolve({
               lat: position.coords.latitude,
-              lng: position.coords.longitude
+              lng: position.coords.longitude,
             });
           },
           () => resolve(null)
@@ -43,34 +41,21 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment', // Use rear camera
+          facingMode: "environment",
           width: { ideal: 1920 },
-          height: { ideal: 1440 }
+          height: { ideal: 1440 },
         },
-        audio: false
+        audio: false,
       });
-
       streamRef.current = stream;
       setIsCameraActive(true);
-
-      // Attach stream to video element after state update
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(err => {
-            console.error('Video play error:', err);
-            setCameraError('Failed to play video stream');
-          });
-        }
-      }, 0);
     } catch (error) {
-      console.error('Camera error:', error);
-      let errorMsg = 'Unable to access camera. Please check permissions.';
+      let errorMsg = "Unable to access camera. Please check permissions.";
       if (error instanceof DOMException) {
-        if (error.name === 'NotAllowedError') {
-          errorMsg = 'Camera permission denied. Please allow camera access.';
-        } else if (error.name === 'NotFoundError') {
-          errorMsg = 'No camera found on this device.';
+        if (error.name === "NotAllowedError") {
+          errorMsg = "Camera permission denied. Please allow camera access.";
+        } else if (error.name === "NotFoundError") {
+          errorMsg = "No camera found on this device.";
         }
       }
       setCameraError(errorMsg);
@@ -80,7 +65,7 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
     setIsCameraActive(false);
@@ -90,43 +75,44 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
   const capturePhoto = async () => {
     if (!videoRef.current || !canvasRef.current) return;
 
-    try {
-      const context = canvasRef.current.getContext('2d');
-      if (!context) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
 
-      canvasRef.current.width = videoRef.current.videoWidth;
-      canvasRef.current.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0);
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      setCameraError("Video stream not ready. Please wait a moment.");
+      return;
+    }
 
-      // Convert canvas to blob and create file
-      canvasRef.current.toBlob(async (blob) => {
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0);
+
+    canvas.toBlob(
+      async (blob) => {
         if (!blob) return;
-
-        const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const file = new File([blob], `photo-${Date.now()}.jpg`, { type: "image/jpeg" });
         stopCamera();
         await handleFile(file);
-      }, 'image/jpeg', 0.95);
-    } catch (error) {
-      console.error('Capture error:', error);
-      setCameraError('Failed to capture photo');
-    }
+      },
+      "image/jpeg",
+      0.95
+    );
   };
 
   const handleFile = async (file: File) => {
-    if (!file.type.startsWith('image/')) return;
+    if (!file.type.startsWith("image/")) return;
 
-    // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
-    // Extract GPS
     const gpsData = await extractGPSData(file);
     setLocation(gpsData);
-
-    // Upload
     onImageUpload(file, gpsData);
   };
 
@@ -146,7 +132,7 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
     setPreview(null);
     setLocation(null);
     stopCamera();
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const shouldShowUpload = !preview && !isCameraActive;
@@ -167,8 +153,8 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
             className={`
               relative border-2 border-dashed rounded-2xl p-12 transition-all
               ${isDragging
-                ? 'border-primary bg-primary/5 scale-[1.02]'
-                : 'border-border hover:border-primary/50 bg-card'
+                ? "border-primary bg-primary/5 scale-[1.02]"
+                : "border-border hover:border-primary/50 bg-card"
               }
             `}
           >
@@ -182,14 +168,6 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
             />
 
             <canvas ref={canvasRef} className="hidden" />
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="hidden"
-            >
-              <track kind="captions" />
-            </video>
 
             <label
               htmlFor="image-upload"
@@ -222,7 +200,7 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
                   type="button"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={startCamera}
+                  onClick={(e) => { e.preventDefault(); startCamera(); }}
                   className="px-6 py-3 bg-accent text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2"
                 >
                   <Camera className="w-5 h-5" />
@@ -241,22 +219,33 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
             exit={{ opacity: 0, scale: 0.95 }}
             className="relative rounded-2xl overflow-hidden bg-black border border-border"
           >
-            <div className="relative w-full bg-black flex items-center justify-center">
+            <div className="relative w-full bg-black" style={{ height: "500px", minHeight: "400px" }}>
               <video
-                ref={videoRef}
+                ref={(el) => {
+                  videoRef.current = el;
+                  if (el && streamRef.current) {
+                    el.srcObject = streamRef.current;
+                    el.play().catch((err) => {
+                      setCameraError("Failed to play stream: " + err.message);
+                    });
+                  }
+                }}
                 autoPlay
                 muted
                 playsInline
-                className="w-full h-96 object-cover block"
-                onLoadedMetadata={() => {
-                  if (videoRef.current) {
-                    videoRef.current.play().catch(err => console.error('Play error:', err));
-                  }
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  backgroundColor: "#000000",
                 }}
               >
                 <track kind="captions" />
               </video>
-              
+
               {cameraError && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/80">
                   <div className="text-center text-white">
@@ -311,7 +300,7 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
           >
             <div className="relative">
               <img
-                src={preview || ''}
+                src={preview || ""}
                 alt="Preview"
                 className="w-full h-96 object-cover"
               />
