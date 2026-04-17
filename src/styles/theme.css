@@ -1,0 +1,251 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* HuskLink Eco-Friendly Color Palette */
+  --font-size: 16px;
+
+  /* Primary greens - vibrant to deep forest */
+  --leaf-green: #7cb342;
+  --forest-medium: #4a7c2e;
+  --forest-dark: #2d5016;
+  --forest-deeper: #1a3010;
+
+  /* Earth tones - biomass browns and soil */
+  --biomass-brown: #8b4513;
+  --earth-tan: #d2b48c;
+  --soil-dark: #3e2723;
+
+  /* Neutrals - warm off-whites and natural grays */
+  --off-white: #faf8f3;
+  --cream: #f5f2ea;
+  --warm-gray: #8a8175;
+  --stone-gray: #5c5850;
+
+  /* Status colors */
+  --success-green: #66bb6a;
+  --warning-amber: #ffa726;
+  --error-red: #ef5350;
+
+  /* Application colors - eco theme */
+  --background: var(--off-white);
+  --foreground: var(--soil-dark);
+  --card: #ffffff;
+  --card-foreground: var(--soil-dark);
+  --popover: #ffffff;
+  --popover-foreground: var(--soil-dark);
+  --primary: var(--forest-medium);
+  --primary-foreground: #ffffff;
+  --secondary: var(--leaf-green);
+  --secondary-foreground: var(--forest-dark);
+  --muted: var(--cream);
+  --muted-foreground: var(--warm-gray);
+  --accent: var(--biomass-brown);
+  --accent-foreground: #ffffff;
+  --destructive: var(--error-red);
+  --destructive-foreground: #ffffff;
+  --border: rgba(74, 124, 46, 0.15);
+  --input: transparent;
+  --input-background: var(--cream);
+  --switch-background: var(--warm-gray);
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: var(--forest-medium);
+
+  /* Chart colors - earth-toned */
+  --chart-1: var(--leaf-green);
+  --chart-2: var(--biomass-brown);
+  --chart-3: var(--forest-medium);
+  --chart-4: var(--earth-tan);
+  --chart-5: var(--success-green);
+
+  --radius: 0.75rem;
+  --sidebar: var(--forest-dark);
+  --sidebar-foreground: var(--off-white);
+  --sidebar-primary: var(--leaf-green);
+  --sidebar-primary-foreground: var(--forest-dark);
+  --sidebar-accent: var(--forest-medium);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--leaf-green);
+}
+
+.dark {
+  /* Dark mode - deep forest theme */
+  --background: var(--forest-deeper);
+  --foreground: var(--off-white);
+  --card: var(--forest-dark);
+  --card-foreground: var(--off-white);
+  --popover: var(--forest-dark);
+  --popover-foreground: var(--off-white);
+  --primary: var(--leaf-green);
+  --primary-foreground: var(--forest-dark);
+  --secondary: var(--forest-medium);
+  --secondary-foreground: var(--off-white);
+  --muted: rgba(74, 124, 46, 0.2);
+  --muted-foreground: var(--warm-gray);
+  --accent: var(--biomass-brown);
+  --accent-foreground: var(--off-white);
+  --destructive: var(--error-red);
+  --destructive-foreground: var(--off-white);
+  --border: rgba(124, 179, 66, 0.2);
+  --input: rgba(74, 124, 46, 0.3);
+  --ring: var(--leaf-green);
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --chart-1: var(--leaf-green);
+  --chart-2: var(--biomass-brown);
+  --chart-3: var(--success-green);
+  --chart-4: var(--earth-tan);
+  --chart-5: var(--warning-amber);
+  --sidebar: var(--forest-deeper);
+  --sidebar-foreground: var(--off-white);
+  --sidebar-primary: var(--leaf-green);
+  --sidebar-primary-foreground: var(--forest-dark);
+  --sidebar-accent: var(--forest-medium);
+  --sidebar-accent-foreground: var(--off-white);
+  --sidebar-border: rgba(124, 179, 66, 0.15);
+  --sidebar-ring: var(--leaf-green);
+}
+
+@theme inline {
+  /* Standard theme colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* HuskLink custom colors */
+  --color-leaf-green: var(--leaf-green);
+  --color-forest-medium: var(--forest-medium);
+  --color-forest-dark: var(--forest-dark);
+  --color-forest-deeper: var(--forest-deeper);
+  --color-biomass-brown: var(--biomass-brown);
+  --color-earth-tan: var(--earth-tan);
+  --color-soil-dark: var(--soil-dark);
+  --color-off-white: var(--off-white);
+  --color-cream: var(--cream);
+  --color-warm-gray: var(--warm-gray);
+  --color-stone-gray: var(--stone-gray);
+  --color-success-green: var(--success-green);
+  --color-warning-amber: var(--warning-amber);
+  --color-error-red: var(--error-red);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /**
+  * HuskLink Typography System
+  * Display: Sora (geometric, modern, organic)
+  * Body: Manrope (warm, readable)
+  * Mono: JetBrains Mono (data display)
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+
+  /* Monospace for data */
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  /* Organic texture overlay for cards */
+  .texture-grain {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+}
