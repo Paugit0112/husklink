@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Mail, Lock, User, Phone, Building2, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Phone, Building2, ArrowRight, Loader2 } from "lucide-react";
 import { RoleSelector } from "./RoleSelector";
 
 type UserRole = 'farmer' | 'buyer';
@@ -16,9 +16,11 @@ interface RegisterFormProps {
     companyName?: string;
   }) => void;
   onSwitchToLogin: () => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-export function RegisterForm({ onRegister, onSwitchToLogin }: RegisterFormProps) {
+export function RegisterForm({ onRegister, onSwitchToLogin, isLoading = false, error }: RegisterFormProps) {
   const [step, setStep] = useState<'role' | 'details'>('role');
   const [formData, setFormData] = useState({
     email: "",
@@ -201,14 +203,24 @@ export function RegisterForm({ onRegister, onSwitchToLogin }: RegisterFormProps)
           </div>
         </div>
 
+        {error && (
+          <p className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-3">
+            {error}
+          </p>
+        )}
+
         <motion.button
           type="submit"
+          disabled={isLoading}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full py-2.5 sm:py-3.5 bg-gradient-to-r from-forest-medium to-leaf-green text-white rounded-xl font-medium text-sm sm:text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group mt-4 sm:mt-6"
+          className="w-full py-2.5 sm:py-3.5 bg-gradient-to-r from-forest-medium to-leaf-green text-white rounded-xl font-medium text-sm sm:text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group mt-4 sm:mt-6 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Create Account
-          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+          {isLoading ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Creating Account...</>
+          ) : (
+            <>Create Account <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" /></>
+          )}
         </motion.button>
       </form>
     </motion.div>

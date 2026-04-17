@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 
 interface LoginFormProps {
   onLogin: (email: string, password: string) => void;
   onSwitchToRegister: () => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-export function LoginForm({ onLogin, onSwitchToRegister }: LoginFormProps) {
+export function LoginForm({ onLogin, onSwitchToRegister, isLoading = false, error }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -67,14 +69,24 @@ export function LoginForm({ onLogin, onSwitchToRegister }: LoginFormProps) {
           </div>
         </div>
 
+        {error && (
+          <p className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-3">
+            {error}
+          </p>
+        )}
+
         <motion.button
           type="submit"
+          disabled={isLoading}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full py-2.5 sm:py-3.5 bg-gradient-to-r from-forest-medium to-leaf-green text-white rounded-xl font-medium text-sm sm:text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
+          className="w-full py-2.5 sm:py-3.5 bg-gradient-to-r from-forest-medium to-leaf-green text-white rounded-xl font-medium text-sm sm:text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Sign In
-          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+          {isLoading ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</>
+          ) : (
+            <>Sign In <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" /></>
+          )}
         </motion.button>
       </form>
 
@@ -93,25 +105,19 @@ export function LoginForm({ onLogin, onSwitchToRegister }: LoginFormProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
           <button
             type="button"
-            onClick={() => {
-              setEmail('farmer@demo.com');
-              setPassword('demo123');
-              onLogin('farmer@demo.com', 'demo123');
-            }}
-            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-leaf-green/10 hover:bg-leaf-green/20 border border-leaf-green/30 rounded-lg text-xs sm:text-sm font-medium text-forest-dark transition-colors"
+            disabled={isLoading}
+            onClick={() => { setEmail('farmer@demo.com'); setPassword('demo1234'); onLogin('farmer@demo.com', 'demo1234'); }}
+            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-leaf-green/10 hover:bg-leaf-green/20 border border-leaf-green/30 rounded-lg text-xs sm:text-sm font-medium text-forest-dark transition-colors disabled:opacity-50"
           >
-            🌾 Farmer
+            🌾 Demo Farmer
           </button>
           <button
             type="button"
-            onClick={() => {
-              setEmail('buyer@demo.com');
-              setPassword('demo123');
-              onLogin('buyer@demo.com', 'demo123');
-            }}
-            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-biomass-brown/10 hover:bg-biomass-brown/20 border border-biomass-brown/30 rounded-lg text-xs sm:text-sm font-medium text-forest-dark transition-colors"
+            disabled={isLoading}
+            onClick={() => { setEmail('buyer@demo.com'); setPassword('demo1234'); onLogin('buyer@demo.com', 'demo1234'); }}
+            className="px-3 sm:px-4 py-2 sm:py-2.5 bg-biomass-brown/10 hover:bg-biomass-brown/20 border border-biomass-brown/30 rounded-lg text-xs sm:text-sm font-medium text-forest-dark transition-colors disabled:opacity-50"
           >
-            🏭 Buyer
+            🏭 Demo Buyer
           </button>
         </div>
       </div>
