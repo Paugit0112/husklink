@@ -4,7 +4,7 @@ import { Package, Eye, TrendingUp, Clock, CheckCircle, MapPin, Edit, Trash2 } fr
 interface Listing {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   address: string;
   asking_price: number;
   ai_estimated_weight_kg: number;

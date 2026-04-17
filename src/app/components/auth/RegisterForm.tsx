@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Mail, Lock, User, Phone, Building2, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Phone, Building2, MapPin, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import { RoleSelector } from "./RoleSelector";
 
 type UserRole = 'farmer' | 'buyer';
@@ -12,6 +12,7 @@ interface RegisterFormProps {
     fullName: string;
     role: UserRole;
     phone?: string;
+    address?: string;
     farmName?: string;
     companyName?: string;
   }) => void;
@@ -22,12 +23,14 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onRegister, onSwitchToLogin, isLoading = false, error }: RegisterFormProps) {
   const [step, setStep] = useState<'role' | 'details'>('role');
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     fullName: "",
     role: undefined as UserRole | undefined,
     phone: "",
+    address: "",
     farmName: "",
     companyName: ""
   });
@@ -146,6 +149,24 @@ export function RegisterForm({ onRegister, onSwitchToLogin, isLoading = false, e
           </div>
         </div>
 
+        <div className="space-y-2">
+          <label htmlFor="address" className="text-xs sm:text-sm text-foreground/80">
+            Address
+          </label>
+          <div className="relative group">
+            <MapPin className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <input
+              id="address"
+              type="text"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              placeholder="Barangay, Municipality, Province"
+              required
+              className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm sm:text-base"
+            />
+          </div>
+        </div>
+
         {formData.role === 'farmer' && (
           <div className="space-y-2">
             <label htmlFor="farmName" className="text-xs sm:text-sm text-foreground/80">
@@ -192,14 +213,22 @@ export function RegisterForm({ onRegister, onSwitchToLogin, isLoading = false, e
             <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
               required
               minLength={8}
-              className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm sm:text-base"
+              className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm sm:text-base"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
+            </button>
           </div>
         </div>
 

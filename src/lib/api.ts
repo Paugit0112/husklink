@@ -17,9 +17,11 @@ export async function signUp(data: {
   fullName: string
   role: 'farmer' | 'buyer'
   phone?: string
+  address?: string
   farmName?: string
   companyName?: string
 }): Promise<Profile> {
+  console.log('[signUp] step 1 — calling supabase.auth.signUp for', data.email)
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
@@ -30,24 +32,53 @@ export async function signUp(data: {
       },
     },
   })
+  console.log('[signUp] step 1 result — user:', authData?.user?.id, '| session:', !!authData?.session, '| error:', authError)
   if (authError) throw new Error(authError.message)
   if (!authData.user) throw new Error('Sign up failed — no user returned.')
 
-  // Upsert profile with extra fields (trigger creates the base row)
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .upsert({
-      id: authData.user.id,
-      email: data.email,
-      full_name: data.fullName,
-      role: data.role,
-      phone: data.phone || null,
-      farm_name: data.farmName || null,
-      company_name: data.companyName || null,
-    })
-  if (profileError) throw new Error(profileError.message)
+  const now = new Date().toISOString()
 
-  return getProfileById(authData.user.id)
+  // When email confirmation is disabled, session is available immediately
+  if (authData.session) {
+    console.log('[signUp] step 2 — upserting profile row')
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: authData.user.id,
+        email: data.email,
+        full_name: data.fullName,
+        role: data.role,
+        phone: data.phone || null,
+        farm_name: data.farmName || null,
+        company_name: data.companyName || null,
+      })
+    console.log('[signUp] step 2 result — profileError:', profileError)
+    if (profileError) throw new Error(profileError.message)
+
+    console.log('[signUp] step 3 — fetching profile from DB')
+    try {
+      const profile = await getProfileById(authData.user.id)
+      console.log('[signUp] step 3 success:', profile)
+      return profile
+    } catch (e) {
+      console.warn('[signUp] step 3 failed (DB fetch), using constructed profile:', e)
+    }
+  } else {
+    console.log('[signUp] no session — email confirmation likely required, returning constructed profile')
+  }
+
+  // Email confirmation required or DB fetch failed — return profile from form data
+  return {
+    id: authData.user.id,
+    email: data.email,
+    full_name: data.fullName,
+    role: data.role,
+    phone: data.phone || undefined,
+    farm_name: data.farmName || undefined,
+    company_name: data.companyName || undefined,
+    created_at: now,
+    updated_at: now,
+  }
 }
 
 export async function signOut(): Promise<void> {
@@ -132,7 +163,7 @@ export async function fetchActiveListings(logisticsFilter: LogisticsType | 'all'
 
   const { data, error } = await query
   if (error) throw new Error(error.message)
-  return (data ?? []) as Listing[]
+  return (data ?? []).map((item: any) => ({ ...item, location: { lat: item.lat, lng: item.lng } })) as Listing[]
 }
 
 export async function fetchMyListings(producerId: string): Promise<Listing[]> {
@@ -142,7 +173,7 @@ export async function fetchMyListings(producerId: string): Promise<Listing[]> {
     .eq('producer_id', producerId)
     .order('created_at', { ascending: false })
   if (error) throw new Error(error.message)
-  return (data ?? []) as Listing[]
+  return (data ?? []).map((item: any) => ({ ...item, location: { lat: item.lat, lng: item.lng } })) as Listing[]
 }
 
 export async function createListing(params: {
@@ -181,7 +212,7 @@ export async function createListing(params: {
     .single()
 
   if (error) throw new Error(error.message)
-  return data as Listing
+  return { ...data, location: { lat: data.lat, lng: data.lng } } as Listing
 }
 
 export async function deleteListing(listingId: string): Promise<void> {

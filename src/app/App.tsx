@@ -224,7 +224,7 @@ export default function App() {
 
   const handleRegister = async (data: {
     email: string; password: string; fullName: string;
-    role: 'farmer' | 'buyer'; phone?: string; farmName?: string; companyName?: string;
+    role: 'farmer' | 'buyer'; phone?: string; address?: string; farmName?: string; companyName?: string;
   }) => {
     setAuthSubmitting(true);
     setAuthError(null);
@@ -235,6 +235,7 @@ export default function App() {
         fullName: data.fullName,
         role: data.role,
         phone: data.phone,
+        address: data.address,
         farmName: data.farmName,
         companyName: data.companyName,
       });

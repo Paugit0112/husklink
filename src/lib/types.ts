@@ -22,6 +22,7 @@ export interface Listing {
   description?: string
   lat: number
   lng: number
+  location: { lat: number; lng: number }
   address: string
   image_url: string
   ai_condition_score?: number

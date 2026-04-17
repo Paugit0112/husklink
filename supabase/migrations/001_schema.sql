@@ -93,14 +93,24 @@ CREATE TRIGGER trg_bids_updated_at      BEFORE UPDATE ON bids      FOR EACH ROW 
 
 -- ── Auto-create profile on signup ─────────────────────────
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _role user_role;
 BEGIN
-  INSERT INTO profiles (id, email, full_name, role)
+  BEGIN
+    _role := (NEW.raw_user_meta_data->>'role')::user_role;
+  EXCEPTION WHEN OTHERS THEN
+    _role := 'farmer';
+  END;
+
+  INSERT INTO public.profiles (id, email, full_name, role)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', 'User'),
-    COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'farmer')
+    COALESCE(_role, 'farmer')
   )
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;

@@ -5,7 +5,7 @@ import { TrendingUp, TrendingDown, User, Clock, CheckCircle, XCircle, Loader2 } 
 interface Bid {
   id: string;
   amount: number;
-  buyer: {
+  buyer?: {
     full_name: string;
     company_name?: string;
   };

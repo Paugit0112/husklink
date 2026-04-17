@@ -7,12 +7,12 @@ interface Bid {
   status: 'pending' | 'accepted' | 'rejected';
   message?: string;
   created_at: string;
-  listing: {
+  listing?: {
     id: string;
     title: string;
     address: string;
     asking_price: number;
-    ai_estimated_weight_kg: number;
+    ai_estimated_weight_kg?: number;
     image_url?: string;
     status: string;
   };
