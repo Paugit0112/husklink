@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { Upload, Camera, MapPin, X, Loader2, StopCircle } from "lucide-react";
 
 interface ImageUploaderProps {
-  onImageUpload: (file: File, location: { lat: number; lng: number } | null) => void;
-  isProcessing?: boolean;
+  readonly onImageUpload: (file: File, location: { lat: number; lng: number } | null) => void;
+  readonly isProcessing?: boolean;
 }
 
 export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUploaderProps) {
@@ -51,13 +51,29 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
       });
 
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setIsCameraActive(true);
-      }
+      setIsCameraActive(true);
+
+      // Attach stream to video element after state update
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(err => {
+            console.error('Video play error:', err);
+            setCameraError('Failed to play video stream');
+          });
+        }
+      }, 0);
     } catch (error) {
       console.error('Camera error:', error);
-      setCameraError('Unable to access camera. Please check permissions.');
+      let errorMsg = 'Unable to access camera. Please check permissions.';
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError') {
+          errorMsg = 'Camera permission denied. Please allow camera access.';
+        } else if (error.name === 'NotFoundError') {
+          errorMsg = 'No camera found on this device.';
+        }
+      }
+      setCameraError(errorMsg);
       setIsCameraActive(false);
     }
   };
@@ -133,10 +149,13 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const shouldShowUpload = !preview && !isCameraActive;
+  const shouldShowCamera = isCameraActive && !preview;
+
   return (
     <div className="w-full">
       <AnimatePresence mode="wait">
-        {!preview ? (
+        {shouldShowUpload && (
           <motion.div
             key="upload"
             initial={{ opacity: 0 }}
@@ -168,7 +187,9 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
               autoPlay
               playsInline
               className="hidden"
-            />
+            >
+              <track kind="captions" />
+            </video>
 
             <label
               htmlFor="image-upload"
@@ -210,7 +231,9 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
               </div>
             </label>
           </motion.div>
-        ) : isCameraActive ? (
+        )}
+
+        {shouldShowCamera && (
           <motion.div
             key="camera"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -218,13 +241,21 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
             exit={{ opacity: 0, scale: 0.95 }}
             className="relative rounded-2xl overflow-hidden bg-black border border-border"
           >
-            <div className="relative w-full bg-black">
+            <div className="relative w-full bg-black flex items-center justify-center">
               <video
                 ref={videoRef}
                 autoPlay
+                muted
                 playsInline
-                className="w-full h-96 object-cover"
-              />
+                className="w-full h-96 object-cover block"
+                onLoadedMetadata={() => {
+                  if (videoRef.current) {
+                    videoRef.current.play().catch(err => console.error('Play error:', err));
+                  }
+                }}
+              >
+                <track kind="captions" />
+              </video>
               
               {cameraError && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/80">
@@ -268,7 +299,9 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
               </div>
             </div>
           </motion.div>
-        ) : (
+        )}
+
+        {!shouldShowUpload && !shouldShowCamera && (
           <motion.div
             key="preview"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -278,7 +311,7 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
           >
             <div className="relative">
               <img
-                src={preview}
+                src={preview || ''}
                 alt="Preview"
                 className="w-full h-96 object-cover"
               />
