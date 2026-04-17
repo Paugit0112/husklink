@@ -15,10 +15,11 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
   const [cameraError, setCameraError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  // Canvas lives outside AnimatePresence so it's always mounted
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const extractGPSData = (file: File): Promise<{ lat: number; lng: number } | null> => {
+  const extractGPSData = (): Promise<{ lat: number; lng: number } | null> => {
     return new Promise((resolve) => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -94,7 +95,11 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
       async (blob) => {
         if (!blob) return;
         const file = new File([blob], `photo-${Date.now()}.jpg`, { type: "image/jpeg" });
+
+        // Stop camera first so isCameraActive → false
         stopCamera();
+
+        // Then set preview so UI goes straight to preview view (never flashes upload)
         await handleFile(file);
       },
       "image/jpeg",
@@ -111,7 +116,7 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
     };
     reader.readAsDataURL(file);
 
-    const gpsData = await extractGPSData(file);
+    const gpsData = await extractGPSData();
     setLocation(gpsData);
     onImageUpload(file, gpsData);
   };
@@ -140,6 +145,9 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
 
   return (
     <div className="w-full">
+      {/* Canvas always mounted outside AnimatePresence so capturePhoto can always access it */}
+      <canvas ref={canvasRef} className="hidden" />
+
       <AnimatePresence mode="wait">
         {shouldShowUpload && (
           <motion.div
@@ -166,8 +174,6 @@ export function ImageUploader({ onImageUpload, isProcessing = false }: ImageUplo
               className="hidden"
               id="image-upload"
             />
-
-            <canvas ref={canvasRef} className="hidden" />
 
             <label
               htmlFor="image-upload"
