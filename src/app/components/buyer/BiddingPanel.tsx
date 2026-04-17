@@ -51,8 +51,8 @@ export function BiddingPanel({
   ];
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-6 texture-grain">
-      <div className="flex items-center justify-between">
+    <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 space-y-4 sm:space-y-6 texture-grain">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h3 className="text-lg">Bidding</h3>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="w-4 h-4" />
@@ -61,17 +61,17 @@ export function BiddingPanel({
       </div>
 
       {/* Current Price Info */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div className="p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-xl">
           <p className="text-xs text-muted-foreground mb-1">Asking Price</p>
-          <p className="text-xl font-mono font-bold text-primary">
+          <p className="text-lg sm:text-xl font-mono font-bold text-primary">
             ₱{askingPrice.toLocaleString()}
           </p>
         </div>
         {highestBid > 0 && (
-          <div className="p-4 bg-accent/5 border border-accent/20 rounded-xl">
+          <div className="p-3 sm:p-4 bg-accent/5 border border-accent/20 rounded-xl">
             <p className="text-xs text-muted-foreground mb-1">Highest Bid</p>
-            <p className="text-xl font-mono font-bold text-accent">
+            <p className="text-lg sm:text-xl font-mono font-bold text-accent">
               ₱{highestBid.toLocaleString()}
             </p>
           </div>
@@ -82,7 +82,7 @@ export function BiddingPanel({
       {!showForm && (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">Quick actions:</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {quickBidOptions.map((option) => (
               <motion.button
                 key={option.label}
@@ -93,7 +93,7 @@ export function BiddingPanel({
                   setShowForm(true);
                 }}
                 className={`
-                  px-4 py-3 rounded-xl font-medium text-sm transition-all
+                  px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-xs sm:text-sm transition-all
                   ${option.variant === 'primary'
                     ? 'bg-gradient-to-r from-forest-medium to-leaf-green text-white shadow-md hover:shadow-lg'
                     : 'bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20'
@@ -101,7 +101,7 @@ export function BiddingPanel({
                 `}
               >
                 <div className="text-xs opacity-80 mb-0.5">{option.label}</div>
-                <div className="font-mono">₱{Math.round(option.amount).toLocaleString()}</div>
+                <div className="font-mono text-sm">₱{Math.round(option.amount).toLocaleString()}</div>
               </motion.button>
             ))}
           </div>
@@ -122,10 +122,10 @@ export function BiddingPanel({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             onSubmit={handleSubmit}
-            className="space-y-4"
+            className="space-y-3 sm:space-y-4"
           >
             <div>
-              <label htmlFor="bidAmount" className="text-sm text-foreground/80 mb-2 block">
+              <label htmlFor="bidAmount" className="text-xs sm:text-sm text-foreground/80 mb-2 block">
                 Your Bid Amount (₱)
               </label>
               <input
@@ -136,7 +136,7 @@ export function BiddingPanel({
                 min="0"
                 step="100"
                 required
-                className="w-full px-4 py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-mono text-lg"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-mono text-base sm:text-lg"
               />
               <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
                 <span>
@@ -157,7 +157,7 @@ export function BiddingPanel({
             </div>
 
             <div>
-              <label htmlFor="message" className="text-sm text-foreground/80 mb-2 block">
+              <label htmlFor="message" className="text-xs sm:text-sm text-foreground/80 mb-2 block">
                 Message (optional)
               </label>
               <textarea
@@ -166,17 +166,17 @@ export function BiddingPanel({
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Add a note for the producer..."
                 rows={2}
-                className="w-full px-4 py-2 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none text-sm"
+                className="w-full px-3 sm:px-4 py-2 bg-input-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none text-xs sm:text-sm"
               />
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <motion.button
                 type="submit"
                 disabled={isSubmitting}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex-1 py-3 bg-gradient-to-r from-forest-medium to-leaf-green text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 py-2 sm:py-3 bg-gradient-to-r from-forest-medium to-leaf-green text-white rounded-xl font-medium text-sm sm:text-base shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -193,7 +193,7 @@ export function BiddingPanel({
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-4 py-3 bg-muted text-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors"
+                className="px-3 sm:px-4 py-2 sm:py-3 bg-muted text-foreground rounded-xl font-medium text-sm sm:text-base hover:bg-muted/80 transition-colors"
               >
                 Cancel
               </button>
@@ -213,7 +213,7 @@ export function BiddingPanel({
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className={`
-                  p-3 rounded-xl border flex items-center justify-between
+                  p-2 sm:p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2
                   ${bid.status === 'accepted'
                     ? 'bg-success-green/5 border-success-green/20'
                     : bid.status === 'rejected'
@@ -222,12 +222,12 @@ export function BiddingPanel({
                   }
                 `}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-forest-medium to-leaf-green rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-forest-medium to-leaf-green rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-medium truncate">
                       {bid.buyer?.company_name || bid.buyer?.full_name || 'Anonymous'}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -235,13 +235,13 @@ export function BiddingPanel({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <p className="font-mono font-semibold">₱{bid.amount.toLocaleString()}</p>
+                <div className="flex items-center justify-between sm:justify-end gap-2">
+                  <p className="font-mono font-semibold text-xs sm:text-base">₱{bid.amount.toLocaleString()}</p>
                   {bid.status === 'accepted' && (
-                    <CheckCircle className="w-5 h-5 text-success-green" />
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-success-green flex-shrink-0" />
                   )}
                   {bid.status === 'rejected' && (
-                    <XCircle className="w-5 h-5 text-muted-foreground" />
+                    <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground flex-shrink-0" />
                   )}
                 </div>
               </motion.div>
